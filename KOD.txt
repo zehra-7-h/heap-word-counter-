@@ -1,0 +1,164 @@
+HEAP YAPISINA DAYALI KELİME SAYICI PROGRAMI
+===========================================
+
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+
+import heapq
+from collections import defaultdict
+import sys
+import os
+import re
+
+class DualKeyHeap:
+    """
+    2 anahtarlı Heap yapısı:
+    1. Kelimenin ilk harfi (A-Z alfabetik sıra)
+    2. Kelimenin dosyada geçme sayısı (yüksekten düşüğe)
+    """
+    
+    def __init__(self):
+        # Kelime sayılarını tutmak için sözlük
+        self.word_counts = defaultdict(int)
+        # Heap için kullanılacak liste
+        self.heap = []
+    
+    def add_word(self, word):
+        """Kelimeyi ekle veya sayısını güncelle"""
+        word_lower = word.lower()
+        
+        if word_lower:
+            self.word_counts[word_lower] += 1
+    
+    def build_heap(self):
+        """Heap'i oluştur (2 anahtara göre sıralı)"""
+        self.heap = []
+        
+        # Kelimeleri ilk harfine göre grupla
+        words_by_letter = defaultdict(list)
+        
+        for word, count in self.word_counts.items():
+            first_letter = word[0].upper()
+            words_by_letter[first_letter].append((word, count))
+        
+        # Her harf grubunu sayıya göre sırala (yüksekten düşüğe)
+        for letter in sorted(words_by_letter.keys()):
+            words_by_letter[letter].sort(key=lambda x: (-x[1], x[0]))
+            
+            for word, count in words_by_letter[letter]:
+                # Heap elemanı: (ilk_harf, -sayı, kelime, sayı)
+                # - sayı kullanıyoruz çünkü Python min-heap'tir
+                heapq.heappush(self.heap, (letter, -count, word, count))
+    
+    def get_sorted_output(self):
+        """Sıralı çıktı al"""
+        output = []
+        heap_copy = self.heap.copy()
+        
+        while heap_copy:
+            letter, neg_count, word, count = heapq.heappop(heap_copy)
+            output.append((letter, word, -neg_count))
+        
+        return output
+    
+    def print_results(self):
+        """Sonuçları yazdır"""
+        output = self.get_sorted_output()
+        
+        current_letter = None
+        for letter, word, count in output:
+            if current_letter != letter:
+                if current_letter is not None:
+                    print()
+                current_letter = letter
+                print(f"\n{letter} ile başlayan kelimeler:")
+                print("-" * 40)
+            
+            print(f"  {word:20} : {count:5} kez")
+    
+    def get_detailed_output(self):
+        """Detaylı çıktı (rapor için)"""
+        output = self.get_sorted_output()
+        result = []
+        
+        current_letter = None
+        for letter, word, count in output:
+            if current_letter != letter:
+                current_letter = letter
+                result.append(f"\n{'='*50}")
+                result.append(f"{letter} ile başlayan kelimeler")
+                result.append(f"{'='*50}")
+            
+            result.append(f"{word:25} : {count:6} kez")
+        
+        return "\n".join(result)
+
+
+def read_and_process_file(file_path):
+    """
+    Dosyayı oku ve kelimeleri işle
+    
+    Args:
+        file_path: İşlenecek txt dosyasının yolu
+    
+    Returns:
+        DualKeyHeap nesnesi
+    """
+    heap = DualKeyHeap()
+    
+    try:
+        with open(file_path, 'r', encoding='utf-8') as f:
+            content = f.read()
+        
+        # Kelimeleri ayıkla (sadece harf ve rakamlardan oluşan)
+        words = re.findall(r'\b[a-zA-Z]+\b', content)
+        
+        print(f"[İşleniyor] Dosyada {len(words)} kelime bulundu...")
+        
+        # Her kelimeyi heap'e ekle
+        for word in words:
+            heap.add_word(word)
+        
+        print(f"[Tamamlandı] {len(heap.word_counts)} benzersiz kelime işlendi.\n")
+        
+        # Heap'i oluştur
+        heap.build_heap()
+        
+        return heap
+    
+    except FileNotFoundError:
+        print(f"HATA: '{file_path}' dosyası bulunamadı!")
+        sys.exit(1)
+    except Exception as e:
+        print(f"HATA: {e}")
+        sys.exit(1)
+
+
+def main():
+    """Ana fonksiyon"""
+    
+    # Komut satırı argümanı kontrol et
+    if len(sys.argv) < 2:
+        print("Kullanım: python heap_word_counter.py <txt_dosyası_yolu>")
+        print("\nÖrnek: python heap_word_counter.py ornek.txt")
+        sys.exit(1)
+    
+    file_path = sys.argv[1]
+    
+    print(f"{'='*50}")
+    print("HEAP YAPISINA DAYALI KELİME SAYICI")
+    print(f"{'='*50}\n")
+    
+    # Dosyayı işle
+    heap = read_and_process_file(file_path)
+    
+    # Sonuçları yazdır
+    heap.print_results()
+    
+    print(f"\n{'='*50}")
+    print(f"Toplam benzersiz kelime: {len(heap.word_counts)}")
+    print(f"{'='*50}\n")
+
+
+if __name__ == "__main__":
+    main()

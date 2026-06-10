@@ -1,0 +1,26 @@
+Bu projede Heap veri yapısı kullanılmıştır. Heap yapısı iki anahtara göre çalışır.
+Birinci anahtar kelimenin ilk harfidir ve alfabetik sıraya göre sıralanır.
+İkinci anahtar ise kelimenin dosyada geçme sayısıdır ve yüksekten düşüğe sıralanır.
+
+Örnek kelimeleri inceleyecek olursak:
+Ankara Ankara Ankara Konya Konya Konya Konya Sivas Sivas Van Van Van Van Van
+Adana Adana Adana Adana Adana Adana Adana Adana Adana Adana
+Ankara Ankara Ankara Konya Konya Konya Konya Konya
+Kocaeli Kocaeli Sivas Sivas Sivas Van Van Van Van Van Van Van Van
+
+Programın özellikleri şunlardır:
+- Dosya okuması UTF-8 encoding ile yapılır
+- Kelimeleri ayıklamak için regex kullanılır
+- Her kelime küçük harfe dönüştürülür
+- Tekrarlanan kelimelerin sayısı tutulur
+- Heap yapısı 2 anahtarla sıralanır
+- Çıktı A-Z ve sayıya göre sıralı verilir
+
+Heap işlemi şu adımları takip eder:
+1. Dosya okunur ve kelimeler sayılır
+2. Kelimeler ilk harflerine göre gruplanır
+3. Her grup sayıya göre sıralanır
+4. Heap yapısı oluşturulur
+5. Sıralı çıktı verilir
+
+Bu program akademik amaçlar için geliştirilmiştir.
